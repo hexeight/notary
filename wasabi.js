@@ -17,7 +17,7 @@ function startApp () {
             });
         }
     }
-    xmlHttp.open("GET", "/contracts.json", true);
+    xmlHttp.open("GET", "/notary/contracts.json", true);
     xmlHttp.send(null);
 }
 
