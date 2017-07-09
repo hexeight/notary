@@ -1,3 +1,23 @@
+function RegisterHash (hash, cb) {
+    var registry = NotaryFactory.deployed();
+    registry.Notarize(hash, { from: web3.eth.defaultAccount }, function (e, c) {
+        cb(e, c);
+    });
+}
+
+function VerifyHashOwner (hash, cb) {
+    var registry = NotaryFactory.deployed();
+    registry.VerifyAuthor.call(hash, { from: web3.eth.defaultAccount }, function (e, c) {
+        cb(e, c);
+    });
+}
+
+function VerifyTime (hash, cb) {
+    var registry = NotaryFactory.deployed();
+    registry.VerifyTime.call(hash, { from: web3.eth.defaultAccount }, function (e, c) {
+        cb(e, c);
+    });
+}
 
 var progress = document.querySelector('.percent');
 function errorHandler(evt) {
@@ -33,28 +53,29 @@ function handleFileSelect(evt) {
 
     var files = evt.dataTransfer.files; // FileList object.
 
-    // files is a FileList of File objects. List some properties.
-    var output = [];
-    for (var i = 0, f; f = files[i]; i++) {
-        output.push('<li><strong>', escape(f.name), '</strong> (', f.type || 'n/a', ') - ',
+    if (files.length <= 0)
+        return;
+    
+    var f = files[0];
+    /*output.push('<li><strong>', escape(f.name), '</strong> (', f.type || 'n/a', ') - ',
                   f.size, ' bytes, last modified: ',
                   f.lastModifiedDate ? f.lastModifiedDate.toLocaleDateString() : 'n/a',
-                  '</li>');
-        var reader = new FileReader();
-        reader.onload = function (e) {
-            console.log(sha256(e.target.result));
-        };
-        reader.onerror = errorHandler;
-        reader.onprogress = updateProgress;
-        reader.onabort = function(e) {
-            alert('File read cancelled');
-        };
-        reader.onloadstart = function(e) {
-            document.getElementById('progress_bar').className = 'loading';
-        };
-        reader.readAsBinaryString(f.slice(0, f.size - 1));
-    }
-    document.getElementById('list').innerHTML = '<ul>' + output.join('') + '</ul>';
+                  '</li>');*/
+    var reader = new FileReader();
+    reader.onload = function (e) {
+        //console.log(sha256(e.target.result));
+        app.file(e.target.result);
+        app.verifyNotary();
+    };
+    reader.onerror = errorHandler;
+    reader.onprogress = updateProgress;
+    reader.onabort = function(e) {
+        alert('File read cancelled');
+    };
+    reader.onloadstart = function(e) {
+        //document.getElementById('progress_bar').className = 'loading';
+    };
+    reader.readAsBinaryString(f.slice(0, f.size - 1));
   }
 
   function handleDragOver(evt) {
@@ -67,3 +88,59 @@ function handleFileSelect(evt) {
   var dropZone = document.getElementById('drop_zone');
   dropZone.addEventListener('dragover', handleDragOver, false);
   dropZone.addEventListener('drop', handleFileSelect, false);
+
+var app;
+function initApp () {
+    var ViewModel = function () {
+        var self = this;
+
+        self.file = ko.observable();
+        self.status = ko.observable(null);
+        self.fileHash = ko.computed(function () {
+            self.status(null);
+            if (self.file() != null) {
+                return sha256(self.file());
+            }
+            else {
+                return null;
+            }
+        }, self);
+
+        self.notarize = function () {
+            RegisterHash(self.fileHash(), function (e, c) {
+                if (!e) {
+
+                }
+            });
+        }
+
+        self.owner = ko.observable();
+        self.time = ko.observable();
+        self.verifyNotary = function () {
+            self.status("validating");
+            VerifyHashOwner(self.fileHash(), function (e, c) {
+                if (!e) {
+                    if (parseInt(c) <= 0) {
+                        self.status("notfound");
+                        return;
+                    } else {
+                        self.owner(c);
+                        VerifyTime(self.fileHash(), function (e, time) {
+                            self.time(new Date(time * 1000));
+                            self.status("found");
+                        });
+                    }
+                }
+                self.status("error");
+            })
+        }
+    }
+
+    pager.Href.hash = '#!/';
+    app = new ViewModel();
+    pager.extendWithPage(app);
+    ko.applyBindings(app);
+    pager.start();
+}
+
+window.addEventListener('web3-loaded', initApp);

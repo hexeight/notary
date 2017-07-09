@@ -1,14 +1,63 @@
 <!DOCTYPE HTML>
 <html>
     <head>
-        <title></title>
+        <title>Notary</title>
+        <!-- Bootstrap Core CSS -->
+        <link href="vendor/bootstrap/css/lumen.min.css" rel="stylesheet">
         <!--<script src="wasabi.js"></script>-->
         <script src="js/sha256.min.js"></script>
+        <script type="text/javascript" src="wasabi.js"></script>
+        <script type='text/javascript' src="js/jquery-3.2.1.min.js"></script>
+        <script type='text/javascript' src='js/knockout-3.4.2.js'></script>
+        <script type='text/javascript' src="js/pager.js"></script>
     </head>
     <body>
-        <div id="drop_zone" style="width: 250px; height: 250px; background-color:#666" dropzone="copy"></div>
-        <div style="height: 10px; width: 0%; background-color: red" class="percent"></div>
-        <output id="list"></output> 
+        <div class="container" style="margin-top: 150px">
+            <div class="header text-center">
+                <h2>Notary</h2>
+                <p>Utilize the drop area below to generate a signature for your files, and notarize signatures on the Ethereum blockchain. Files do not leave your computer, only their signatures do.</p>
+            </div>
+            <div class="content text-center">
+                <small data-bind="text: status"></small>
+                <div class="well" id="drop_zone" dropzone="copy">
+                    <span>Drop file to notarize</span>
+                    <div style="height: 10px; width: 0%; background-color: red" class="percent"></div>
+                </div>
+                <div class="notary-form" data-bind="visible: file">
+                    <div>
+                        <strong>File signature:</strong> <span data-bind="text: fileHash"></span>
+                    </div><br/>
+                    <a href="#" class="btn btn-primary" data-bind="click: notarize, visible: status() == 'notfound'">Notarize signature</a>
+                </div>
+                <div class="row" style="margin-top: 25px" data-bind="visible: status() == 'found'">
+                    <div class="notary-report col-md-offset-3 col-md-6">
+                        <div class="panel panel-success">
+                            <div class="panel-heading">
+                                <h3 class="panel-title">Signature found</h3>
+                            </div>
+                            <div class="panel-body">
+                                <div>
+                                    <strong>Owner:</strong> <span data-bind="text: owner"></span>
+                                </div>
+                                <div>
+                                    <strong>Timestamp:</strong> <span data-bind="text: time"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <output id="list"></output>
+            </div>
+            <div class="text-center">
+                Made with <3 <a href="http://0x8.in" target="_blank">0x8</a> | Powered by Ethereum (Ropsten Testnet)
+            </div>
+        </div>
+         
         <script src="js/app.js"></script>
+        <!-- jQuery -->
+        <script src="vendor/jquery/jquery.min.js"></script>
+
+        <!-- Bootstrap Core JavaScript -->
+        <script src="vendor/bootstrap/js/bootstrap.min.js"></script>
     </body>
 </html>

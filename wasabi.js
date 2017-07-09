@@ -22,6 +22,7 @@ function startApp () {
 }
 
 window.addEventListener('load', function() {
+  window.addEventListener('web3-loaded', startApp());
   // Checking if Web3 has been injected by the browser (Mist/MetaMask)
   if (typeof web3 !== 'undefined') {
     // Use Mist/MetaMask's provider
