@@ -37,7 +37,7 @@
                             </div>
                             <div class="panel-body">
                                 <div>
-                                    <strong>Owner:</strong> <span data-bind="text: owner"></span>
+                                    <strong>Owner:</strong> <a data-bind="text: owner, attr: { href: 'https://ropsten.etherscan.io/address/' + owner() }"></a>
                                 </div>
                                 <div>
                                     <strong>Timestamp:</strong> <span data-bind="text: time"></span>

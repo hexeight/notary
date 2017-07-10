@@ -94,6 +94,7 @@ function initApp () {
     var ViewModel = function () {
         var self = this;
 
+        self.contractAddress = ko.observable();
         self.file = ko.observable();
         self.status = ko.observable(null);
         self.fileHash = ko.computed(function () {
